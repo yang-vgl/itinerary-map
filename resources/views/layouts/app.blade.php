@@ -17,12 +17,17 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <!-- mapbox -->
+    <link
+        href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.css"
+        rel="stylesheet"
+    />
+
 </head>
 <body>
     <div id="app">
-        <main class="py-4">
             @yield('content')
-        </main>
     </div>
 </body>
 </html>
