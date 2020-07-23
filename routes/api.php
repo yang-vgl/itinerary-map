@@ -17,3 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/itinerary/get', '\App\Http\Controllers\ItineraryController@get');
+
+Route::get('/sailings/get', '\App\Http\Controllers\SailingsController@get');

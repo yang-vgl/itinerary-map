@@ -1908,9 +1908,7 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mapbox-gl */ "./node_modules/mapbox-gl/dist/mapbox-gl.js");
-/* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mapbox_gl__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var vue_mapbox__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-mapbox */ "./node_modules/vue-mapbox/src/main.js");
+/* harmony import */ var vue_mapbox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-mapbox */ "./node_modules/vue-mapbox/src/main.js");
 //
 //
 //
@@ -1921,62 +1919,48 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  components: {
-    MglMap: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglMap"],
-    MglMarker: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglMarker"],
-    MglGeojsonLayer: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglGeojsonLayer"]
-  },
+  components: {},
   data: function data() {
     return {
-      accessToken: "pk.eyJ1IjoiY3J1aXNld2F0Y2giLCJhIjoiY2psbTU1cXA5MGJzdzNqcW1uMW8xdnhxOSJ9.XQXd9br5alZu0SsqgrOAGA",
-      mapStyle: "mapbox://styles/cruisewatch/cjmgdmwxd4e662rpv1z8zcxvr",
-      geoJsonLayer: {
-        "id": "route",
-        "type": "line",
-        "source": {
-          "type": "geojson",
-          "data": {
-            "type": "Feature",
-            "properties": {},
-            "geometry": {
-              "type": "LineString",
-              "coordinates": [[30.0, 0.5], [10.0, 0.5], [100.0, 45.5]]
-            }
-          }
-        },
-        "layout": {
-          "line-join": "round",
-          "line-cap": "round"
-        },
-        "paint": {
-          "line-color": "#3ea2f7",
-          "line-width": 2,
-          "line-dasharray": [1, 3]
-        }
-      },
-      center: [30.0, 0.5],
-      zoom: 1
+      columns: ['Day', 'Port', 'Arrival', 'Departure'],
+      itins: []
     };
   },
+  methods: {
+    read: function read() {
+      var _this = this;
+
+      var sailing_id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      return window.axios.get('/api/itinerary/get', {
+        params: {
+          sailing_id: sailing_id
+        }
+      }).then(function (response) {
+        _this.itins = response.data;
+      });
+    }
+  },
   created: function created() {
-    this.mapbox = mapbox_gl__WEBPACK_IMPORTED_MODULE_0___default.a;
-    this.markers = [{
-      coordinates: [30.0, 0.5]
-    }, {
-      coordinates: [10.0, 0.5]
-    }, {
-      coordinates: [100.0, 45.5]
-    }];
-    var el = document.createElement('div');
-    var markerName = 1;
-    var currentPositionClass = '';
-    markerName = '1/' + markerName;
-    el.innerHTML = '<span class="marker-wrap">' + markerName + '</span>';
-    console.log(el);
-    this.el1 = el;
+    this.read();
+    var self = this;
+    this.$eventHub.$on('sailing-change', function (e) {
+      self.read(e);
+    });
   }
 });
 
@@ -1994,7 +1978,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mapbox-gl */ "./node_modules/mapbox-gl/dist/mapbox-gl.js");
 /* harmony import */ var mapbox_gl__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(mapbox_gl__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vue_mapbox__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-mapbox */ "./node_modules/vue-mapbox/src/main.js");
-//
 //
 //
 //
@@ -2054,25 +2037,114 @@ __webpack_require__.r(__webpack_exports__);
         }
       },
       center: [30.0, 0.5],
-      zoom: 1
+      zoom: 1,
+      markers: []
     };
+  },
+  methods: {
+    reload: function reload(sailing_id) {
+      var _this = this;
+
+      console.log(sailing_id);
+      self = this;
+      return window.axios.get('/api/itinerary/get', {
+        params: {
+          sailing_id: sailing_id
+        }
+      }).then(function (response) {
+        var coordinate = [];
+        self.markers = [];
+        Object.keys(response.data).forEach(function (key) {
+          if (response.data[key].gps) {
+            coordinate.push(response.data[key].gps);
+            self.markers.push({
+              coordinates: response.data[key].gps
+            });
+          }
+        });
+        console.log(coordinate);
+        console.log(self.markers);
+        _this.geoJsonLayer.source.data.geometry.coordinates = coordinate;
+
+        if (_this.map.getLayer(_this.geoJsonLayer.id)) {
+          _this.map.removeLayer(_this.geoJsonLayer.id);
+        }
+
+        if (_this.map.getSource(_this.geoJsonLayer.id)) {
+          _this.map.removeSource(_this.geoJsonLayer.id);
+        }
+
+        _this.map.addLayer(_this.geoJsonLayer);
+      });
+    },
+    mapLoaded: function mapLoaded(_ref) {
+      var map = _ref.map;
+      this.map = map;
+      this.reload(29006);
+      console.log(map.get);
+    }
   },
   created: function created() {
     this.mapbox = mapbox_gl__WEBPACK_IMPORTED_MODULE_0___default.a;
-    this.markers = [{
-      coordinates: [30.0, 0.5]
-    }, {
-      coordinates: [10.0, 0.5]
-    }, {
-      coordinates: [40.0, 5.5]
-    }];
-    var el = document.createElement('div');
-    var markerName = 1;
-    var currentPositionClass = '';
-    markerName = '1/' + markerName;
-    el.innerHTML = '<span class="marker-wrap">' + markerName + '</span>';
-    console.log(el);
-    this.el1 = el;
+    self = this;
+    this.$eventHub.$on('sailing-change', function (e) {
+      self.reload(e);
+    });
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SailingsListComponent.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/SailingsListComponent.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_mapbox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-mapbox */ "./node_modules/vue-mapbox/src/main.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  components: {},
+  data: function data() {
+    return {
+      sailings: []
+    };
+  },
+  methods: {
+    read: function read() {
+      var _this = this;
+
+      return window.axios.get('/api/sailings/get', {
+        params: {}
+      }).then(function (response) {
+        _this.sailings = response.data;
+        console.log(_this.sailings);
+      });
+    },
+    onChange: function onChange(event) {
+      if (event.target.options.selectedIndex > -1) {
+        var sailing_id = event.target.options[event.target.options.selectedIndex].value;
+        this.$eventHub.$emit('sailing-change', sailing_id);
+      }
+    }
+  },
+  created: function created() {
+    this.read();
   }
 });
 
@@ -38986,20 +39058,37 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div", { staticClass: "itins-container", attrs: { id: "itins" } }, [
+    _c("table", { staticClass: "itins-table" }, [
+      _c("thead", [
+        _c(
+          "tr",
+          _vm._l(_vm.columns, function(column, index) {
+            return _c("th", { key: index }, [_vm._v(" " + _vm._s(column))])
+          }),
+          0
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "tbody",
+        _vm._l(_vm.itins, function(itin, index) {
+          return _c("tr", { key: index }, [
+            _c("td", [_vm._v(_vm._s(itin.day))]),
+            _vm._v(" "),
+            _c("td", [_vm._v(_vm._s(itin.port_name))]),
+            _vm._v(" "),
+            _c("td"),
+            _vm._v(" "),
+            _c("td")
+          ])
+        }),
+        0
+      )
+    ])
+  ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      { staticClass: "itins-container", attrs: { id: "itins" } },
-      [_c("table")]
-    )
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -39032,7 +39121,8 @@ var render = function() {
             accessToken: _vm.accessToken,
             mapStyle: _vm.mapStyle,
             zoom: _vm.zoom
-          }
+          },
+          on: { load: _vm.mapLoaded }
         },
         [
           _vm._l(_vm.markers, function(marker, i) {
@@ -39070,7 +39160,7 @@ var render = function() {
           _vm._v(" "),
           _c("MglGeojsonLayer", {
             attrs: {
-              sourceId: "route",
+              sourceId: _vm.geoJsonLayer.id,
               layerId: "route",
               layer: _vm.geoJsonLayer
             }
@@ -39080,6 +39170,53 @@ var render = function() {
       )
     ],
     1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SailingsListComponent.vue?vue&type=template&id=2dbb4d02&":
+/*!************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/SailingsListComponent.vue?vue&type=template&id=2dbb4d02& ***!
+  \************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "sailings-container", attrs: { id: "sailings-list" } },
+    [
+      _c(
+        "select",
+        {
+          staticClass: "form-control",
+          attrs: { name: "LeaveType" },
+          on: {
+            change: function($event) {
+              return _vm.onChange($event)
+            }
+          }
+        },
+        _vm._l(_vm.sailings, function(sailing, index) {
+          return _c("option", { key: index, domProps: { value: sailing.id } }, [
+            _vm._v("\n            " + _vm._s(sailing.name) + "\n        ")
+          ])
+        }),
+        0
+      )
+    ]
   )
 }
 var staticRenderFns = []
@@ -53330,12 +53467,14 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 Vue.component('map-component', __webpack_require__(/*! ./components/MapComponent.vue */ "./resources/js/components/MapComponent.vue")["default"]);
 Vue.component('itins-component', __webpack_require__(/*! ./components/ItinsComponent.vue */ "./resources/js/components/ItinsComponent.vue")["default"]);
+Vue.component('sailings-list-component', __webpack_require__(/*! ./components/SailingsListComponent.vue */ "./resources/js/components/SailingsListComponent.vue")["default"]);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+Vue.prototype.$eventHub = new Vue();
 var app = new Vue({
   el: '#app'
 });
@@ -53520,6 +53659,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_MapComponent_vue_vue_type_template_id_2f302b28___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_MapComponent_vue_vue_type_template_id_2f302b28___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/SailingsListComponent.vue":
+/*!***********************************************************!*\
+  !*** ./resources/js/components/SailingsListComponent.vue ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _SailingsListComponent_vue_vue_type_template_id_2dbb4d02___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SailingsListComponent.vue?vue&type=template&id=2dbb4d02& */ "./resources/js/components/SailingsListComponent.vue?vue&type=template&id=2dbb4d02&");
+/* harmony import */ var _SailingsListComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SailingsListComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/SailingsListComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _SailingsListComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _SailingsListComponent_vue_vue_type_template_id_2dbb4d02___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _SailingsListComponent_vue_vue_type_template_id_2dbb4d02___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/SailingsListComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/SailingsListComponent.vue?vue&type=script&lang=js&":
+/*!************************************************************************************!*\
+  !*** ./resources/js/components/SailingsListComponent.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_SailingsListComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./SailingsListComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SailingsListComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_SailingsListComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/SailingsListComponent.vue?vue&type=template&id=2dbb4d02&":
+/*!******************************************************************************************!*\
+  !*** ./resources/js/components/SailingsListComponent.vue?vue&type=template&id=2dbb4d02& ***!
+  \******************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SailingsListComponent_vue_vue_type_template_id_2dbb4d02___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./SailingsListComponent.vue?vue&type=template&id=2dbb4d02& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SailingsListComponent.vue?vue&type=template&id=2dbb4d02&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SailingsListComponent_vue_vue_type_template_id_2dbb4d02___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SailingsListComponent_vue_vue_type_template_id_2dbb4d02___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

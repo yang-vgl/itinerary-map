@@ -2,8 +2,7 @@
 
     <div id="map" class="map-container">
 
-        <MglMap :accessToken="accessToken" :mapStyle="mapStyle"  :zoom = "zoom">
-
+        <MglMap :accessToken="accessToken" :mapStyle="mapStyle"  :zoom = "zoom" @load="mapLoaded">
 
             <MglMarker v-for="(marker, i) in markers"  :coordinates.sync="marker.coordinates">
                 <div  slot="marker" class="my-div-icon mapboxgl-marker mapboxgl-marker-anchor-center"
@@ -13,7 +12,7 @@
             </MglMarker>
 
             <MglGeojsonLayer
-                sourceId="route"
+                :sourceId="geoJsonLayer.id"
                 layerId="route"
                 :layer="geoJsonLayer"
             />
@@ -31,8 +30,8 @@
             MglMap,
             MglMarker,
             MglGeojsonLayer
-
         },
+
         data() {
             return {
                 accessToken:
@@ -63,25 +62,58 @@
                     }
                 },
                 center : [30.0, 0.5],
-                zoom : 1
+                zoom : 1,
+                markers : []
             };
         },
+
+        methods : {
+
+            reload(sailing_id)
+            {
+                console.log(sailing_id);
+                self = this;
+                return  window.axios.get('/api/itinerary/get', {
+                    params: {
+                        sailing_id: sailing_id,
+                    }
+                }).then((response) => {
+                    var coordinate = [];
+                    self.markers = [];
+                    Object.keys(response.data).forEach(function(key) {
+                        if(response.data[key].gps) {
+                            coordinate.push(response.data[key].gps);
+                            self.markers.push( {coordinates :response.data[key].gps});
+                        }
+                    });
+
+                    console.log(coordinate);
+                    console.log(self.markers);
+                    this.geoJsonLayer.source.data.geometry.coordinates = coordinate;
+
+                    if(this.map.getLayer(this.geoJsonLayer.id)) {
+                        this.map.removeLayer(this.geoJsonLayer.id);
+                    }
+                    if(this.map.getSource(this.geoJsonLayer.id)) {
+                        this.map.removeSource(this.geoJsonLayer.id);
+                    }
+                    this.map.addLayer(this.geoJsonLayer);
+                })
+            },
+
+            mapLoaded ({ map }) {
+                this.map = map;
+                this.reload(29006);
+                console.log(map.get);
+            },
+        },
+
         created() {
             this.mapbox = Mapbox;
-
-            this.markers = [
-                {coordinates :[30.0, 0.5]},
-                {coordinates :[10.0, 0.5]},
-                {coordinates :[40.0, 5.5]},
-            ];
-
-            var el = document.createElement('div' );
-            var markerName = 1;
-            var currentPositionClass = '';
-            markerName = '1/' + markerName;
-            el.innerHTML = '<span class="marker-wrap">' + markerName + '</span>';
-            console.log(el);
-            this.el1 = el;
+            self = this;
+            this.$eventHub.$on('sailing-change', function(e){
+                self.reload(e);
+            });
         }
     };
 </script>

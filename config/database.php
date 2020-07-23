@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_DEFAULT_CONNECTION', 'www'),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,6 +34,20 @@ return [
     */
 
     'connections' => [
+
+        DB_CONNECTION_SYSTEM => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', 'mysql'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE_SYSTEM', 'system'),
+            'username' => env('DB_DATABASE_SYSTEM_USERNAME', 'default'),
+            'password' => env('DB_DATABASE_SYSTEM_PASSWORD', ''),
+            'unix_socket' => env('DB_DATABASE_SYSTEM_SOCKET', ''),
+            'strict' => false,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',

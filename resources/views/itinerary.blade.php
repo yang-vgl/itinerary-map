@@ -1,7 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-    <itins-component></itins-component>
-    <map-component></map-component>
+
+    <div>
+
+        <sailings-list-component></sailings-list-component>
+
+        <itins-component></itins-component>
+
+    </div>
+
+    <div>
+        <map-component></map-component>
+    </div>
 
 @endsection
