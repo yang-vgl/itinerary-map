@@ -42,13 +42,9 @@
         methods : {
             read()
             {
-                return  window.axios.get('/api/sailings/get', {
-                    params: {
-                    }
-                }).then((response) => {
+                window.axios.get('/api/sailings/get').then((response) => {
                     this.internal_sailings = response.data.internal_sailings;
                     this.external_sailings = response.data.external_sailings;
-                    console.log(response.data);
                 })
             },
 

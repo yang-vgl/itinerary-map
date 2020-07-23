@@ -16,7 +16,7 @@
 
             <MglGeojsonLayer
                 :sourceId="geoJsonLayer.id"
-                layerId="route"
+                :layerId="geoJsonLayer.id"
                 :layer="geoJsonLayer"
             />
 

@@ -1945,17 +1945,14 @@ __webpack_require__.r(__webpack_exports__);
     read: function read(data) {
       var _this = this;
 
-      console.log(data);
       return window.axios.get('/api/itinerary/get', {
         params: data
       }).then(function (response) {
         _this.itins = response.data;
-        console.log(_this.itins);
       });
     }
   },
   created: function created() {
-    this.read();
     var self = this;
     this.$eventHub.$on('sailing-change', function (e) {
       self.read(e);
@@ -2155,12 +2152,9 @@ __webpack_require__.r(__webpack_exports__);
     read: function read() {
       var _this = this;
 
-      return window.axios.get('/api/sailings/get', {
-        params: {}
-      }).then(function (response) {
+      window.axios.get('/api/sailings/get').then(function (response) {
         _this.internal_sailings = response.data.internal_sailings;
         _this.external_sailings = response.data.external_sailings;
-        console.log(response.data);
       });
     },
     onChange: function onChange(event) {
@@ -39197,7 +39191,7 @@ var render = function() {
           _c("MglGeojsonLayer", {
             attrs: {
               sourceId: _vm.geoJsonLayer.id,
-              layerId: "route",
+              layerId: _vm.geoJsonLayer.id,
               layer: _vm.geoJsonLayer
             }
           })

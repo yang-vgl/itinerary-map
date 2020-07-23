@@ -39,19 +39,15 @@
         methods : {
             read(data)
             {
-                console.log(data);
                 return  window.axios.get('/api/itinerary/get', {
                     params: data
                 }).then((response) => {
                     this.itins = response.data;
-                    console.log(this.itins);
                 })
             },
         },
 
         created() {
-
-            this.read();
 
             var self = this;
 
