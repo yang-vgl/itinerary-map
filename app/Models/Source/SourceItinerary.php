@@ -1,47 +1,60 @@
-<?php namespace App;
+<?php
+
+namespace App\Models\Source;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Itinerary Model
- */
-class Itinerary extends Model
+class SourceItinerary extends Model
 {
     /**
-     * @var string The database table used by the model.
+     * @var array
      */
-    public $table = 'source_itineraries';
+    protected $guarded = [];
 
 
-    public $belongsTo = [
-        'sailing' => 'Cruisewatch\Acquisition\Models\Sailing',
-        'port' => 'Cruisewatch\Acquisition\Models\Port',
-    ];
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function sailing()
+    {
+        return $this->belongsTo(SourceSailing::class, 'sailing_id');
+    }
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function port()
+    {
+        return $this->belongsTo(SourcePort::class, 'port_id');
+    }
 
     public static function itineraryForMap($sailing_id)
     {
 
-        $sailing = Sailing::find($sailing_id);
+        $sailing = SourceSailing::find($sailing_id);
         if(!$sailing) {
             return [];
         }
+        $itins = SourceItinerary::with('port')
+        ->where('sailing_id', $sailing_id)->get();
+
+
         $data =  array_map(function($val) {
             return [
-                'day' => $val['day'] ?? '',
-                'label' =>  isset($val['port_id']) ? Port::find($val['port_id'])->name : ($val['label'] ?? ''),
+                'day' => $val['cday'] ?? '',
                 'port_id' => $val['port_id'] ?? '',
-                'port_name' =>  isset($val['port_id']) ? Port::find($val['port_id'])->name : '',
-                'country' =>  isset($val['port_id']) ?  isset(Port::find($val['port_id'])->country->name) ? Port::find($val['port_id'])->country->name : ''  : '',
-                'gps' => isset($val['geo']) ? array_reverse(explode(',', $val['geo'])) :  '',
+                'port_name' =>  isset($val['port']) ? $val['port']['name'] : '',
+                'gps' =>  isset($val['port']) ? [$val['port']['lng'], $val['port']['lat']] : '',
             ];
-        }, json_decode($sailing->itinerary, true));
+        }, $itins->toArray());
         $format = [];
         foreach($data as $key => $val) {
             $format[$key] = $val;
             if($key < 1) {
                 continue;
             }
-            if($data[$key]['label'] == $data[$key - 1]['label']) {
+            if($data[$key]['port_name'] == $data[$key - 1]['port_name']) {
                 $arr = is_array($format[$key-1]['day']) ? $format[$key-1]['day'] : [$format[$key-1]['day']];
                 array_push($arr, $data[$key]['day']);
                 $format[$key]['day'] = $arr;
@@ -56,4 +69,6 @@ class Itinerary extends Model
         }
         return $format;
     }
+
+
 }

@@ -37,14 +37,14 @@
         },
 
         methods : {
-            read(sailing_id = 1)
+            read(data)
             {
+                console.log(data);
                 return  window.axios.get('/api/itinerary/get', {
-                    params: {
-                        sailing_id: sailing_id,
-                    }
+                    params: data
                 }).then((response) => {
                     this.itins = response.data;
+                    console.log(this.itins);
                 })
             },
         },

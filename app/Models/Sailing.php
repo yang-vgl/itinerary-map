@@ -1,4 +1,4 @@
-<?php namespace App;
+<?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,7 +33,7 @@ class Sailing extends Model
      * @var array
      */
     public $belongsTo = [
-        'trip' => 'App\Trip',
+        'trip' => 'App\Models\Trip',
     ];
 
     /**
@@ -45,7 +45,7 @@ class Sailing extends Model
 
     public function trip()
     {
-        return $this->hasOne('App\Trip', 'id', 'trip_id');
+        return $this->hasOne('App\Models\Trip', 'id', 'trip_id');
     }
     /**
      * @param $query

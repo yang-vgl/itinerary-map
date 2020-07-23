@@ -1,11 +1,22 @@
 <template>
     <div id="sailings-list" class="sailings-container">
-
-        <select name="LeaveType" @change="onChange($event)" class="form-control">
-            <option v-for="(sailing, index) in sailings" :key="index" :value="sailing.id">
-                {{sailing.name}}
+        internal:
+        <select name="internal_sailings" @change="onChange($event)" class="form-control">
+            <option value="" selected="selected" >Please Select</option>
+            <option v-for="(sailing, index) in internal_sailings" :key="index" :value="sailing.id" :data-name="sailing.name" :data-departure="sailing.departure" :data-arrival="sailing.arrival">
+                {{sailing.id}} - {{sailing.name}}
             </option>
         </select>
+
+        external:
+        <select name="external_sailings" @change="onChange($event)" class="form-control">
+            <option v-for="(sailing, index) in external_sailings"
+                    :key="index" :value="sailing.id"  :data-name="sailing.name" :data-source="sailing.source" :data-departure="sailing.departure" :data-arrival="sailing.arrival">
+                {{sailing.id}} - {{sailing.source}} -  {{sailing.name}}
+            </option>
+        </select>
+
+        <h4>{{selected_sailing}} </h4>
     </div>
 
 </template>
@@ -20,7 +31,9 @@
         },
         data() {
             return {
-                sailings : []
+                internal_sailings : [],
+                external_sailings : [],
+                selected_sailing : ''
             };
         },
 
@@ -31,17 +44,19 @@
                     params: {
                     }
                 }).then((response) => {
-                    this.sailings = response.data;
-                    console.log( this.sailings);
+                    this.internal_sailings = response.data.internal_sailings;
+                    this.external_sailings = response.data.external_sailings;
+                    console.log(response.data);
                 })
             },
 
             onChange:function(event){
                 if(event.target.options.selectedIndex > -1) {
-                    var sailing_id = event.target.options[event.target.options.selectedIndex].value;
-                    this.$eventHub.$emit('sailing-change', sailing_id);
+                    var selected =  event.target.options[event.target.options.selectedIndex];
+                    this.selected_sailing = selected.dataset.name+ selected.dataset.departure+ selected.dataset.arrival;
+                    this.$eventHub.$emit('sailing-change', {'sailing_id':selected.value, 'source' :  selected.dataset.source});
                 }
-            }
+            },
         },
 
         created() {

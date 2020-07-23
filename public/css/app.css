@@ -22,6 +22,7 @@
 
 .itins-container {
   margin: 20px;
+  margin-top: 40px;
   width: 500px;
   height: 100px;
   flex-basis: 50%;
@@ -37,6 +38,7 @@
 }
 
 .itins-table {
+  margin-top: 100px;
   width: 500px;
   height: 500px;
 }
@@ -45,7 +47,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  background: #3ea2f7;
   background: #3ea2f7;
   width: 20px !important;
   height: 20px !important;
@@ -70,6 +71,10 @@
   border-width: 15px 10px 0 10px;
   border-color: #3ea2f7 transparent transparent transparent;
   margin-top: -7px;
+}
+
+.map-marker {
+  transform: translate(-50%, -50%) translate(515px, 440px);
 }
 
 /*!

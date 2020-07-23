@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Itinerary;
+use App\Models\Itinerary;
+use App\Models\Source\SourceItinerary;
 use Illuminate\Http\Request;
 
 class ItineraryController extends Controller
@@ -12,7 +13,11 @@ class ItineraryController extends Controller
         if(!$request->sailing_id) {
             return false;
         }
-        $itins = Itinerary::itineraryForMap($request->sailing_id);
+        if($request->source) {
+            $itins = SourceItinerary::itineraryForMap($request->sailing_id);
+        } else {
+            $itins = Itinerary::itineraryForMap($request->sailing_id);
+        }
         return $itins;
     }
 }

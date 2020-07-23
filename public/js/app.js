@@ -1942,16 +1942,15 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    read: function read() {
+    read: function read(data) {
       var _this = this;
 
-      var sailing_id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      console.log(data);
       return window.axios.get('/api/itinerary/get', {
-        params: {
-          sailing_id: sailing_id
-        }
+        params: data
       }).then(function (response) {
         _this.itins = response.data;
+        console.log(_this.itins);
       });
     }
   },
@@ -2000,13 +1999,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
     MglMap: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglMap"],
     MglMarker: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglMarker"],
-    MglGeojsonLayer: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglGeojsonLayer"]
+    MglGeojsonLayer: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglGeojsonLayer"],
+    MglPopup: vue_mapbox__WEBPACK_IMPORTED_MODULE_1__["MglPopup"]
   },
   data: function data() {
     return {
@@ -2022,7 +2027,7 @@ __webpack_require__.r(__webpack_exports__);
             "properties": {},
             "geometry": {
               "type": "LineString",
-              "coordinates": [[30.0, 0.5], [10.0, 0.5], [40.0, 5.5]]
+              "coordinates": []
             }
           }
         },
@@ -2036,35 +2041,42 @@ __webpack_require__.r(__webpack_exports__);
           "line-dasharray": [1, 3]
         }
       },
-      center: [30.0, 0.5],
+      //todo maxBounds not behaves very good
+      //maxBounds :,
+      center: [0, 0],
       zoom: 1,
       markers: []
     };
   },
   methods: {
-    reload: function reload(sailing_id) {
+    reload: function reload(data) {
       var _this = this;
 
-      console.log(sailing_id);
       self = this;
       return window.axios.get('/api/itinerary/get', {
         params: {
-          sailing_id: sailing_id
+          sailing_id: data.sailing_id,
+          source: data.source
         }
       }).then(function (response) {
         var coordinate = [];
         self.markers = [];
+        self.maxBounds = [];
         Object.keys(response.data).forEach(function (key) {
           if (response.data[key].gps) {
             coordinate.push(response.data[key].gps);
             self.markers.push({
-              coordinates: response.data[key].gps
+              coordinates: response.data[key].gps,
+              name: response.data[key].port_name,
+              country: response.data[key].country
             });
+            self.maxBounds.push(response.data[key].gps);
           }
         });
-        console.log(coordinate);
-        console.log(self.markers);
-        _this.geoJsonLayer.source.data.geometry.coordinates = coordinate;
+        _this.center = coordinate[0];
+        _this.zoom = 2; //this.map.fitBounds( this.map.getMaxBounds(), {padding: 65} );
+
+        _this.geoJsonLayer.source.data.geometry.coordinates = coordinate; //todo why isn't the template automatically re-rendered when geoJsonLayer is changed ?
 
         if (_this.map.getLayer(_this.geoJsonLayer.id)) {
           _this.map.removeLayer(_this.geoJsonLayer.id);
@@ -2080,7 +2092,6 @@ __webpack_require__.r(__webpack_exports__);
     mapLoaded: function mapLoaded(_ref) {
       var map = _ref.map;
       this.map = map;
-      this.reload(29006);
       console.log(map.get);
     }
   },
@@ -2117,12 +2128,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {},
   data: function data() {
     return {
-      sailings: []
+      internal_sailings: [],
+      external_sailings: [],
+      selected_sailing: ''
     };
   },
   methods: {
@@ -2132,14 +2156,19 @@ __webpack_require__.r(__webpack_exports__);
       return window.axios.get('/api/sailings/get', {
         params: {}
       }).then(function (response) {
-        _this.sailings = response.data;
-        console.log(_this.sailings);
+        _this.internal_sailings = response.data.internal_sailings;
+        _this.external_sailings = response.data.external_sailings;
+        console.log(response.data);
       });
     },
     onChange: function onChange(event) {
       if (event.target.options.selectedIndex > -1) {
-        var sailing_id = event.target.options[event.target.options.selectedIndex].value;
-        this.$eventHub.$emit('sailing-change', sailing_id);
+        var selected = event.target.options[event.target.options.selectedIndex];
+        this.selected_sailing = selected.dataset.name + selected.dataset.departure + selected.dataset.arrival;
+        this.$eventHub.$emit('sailing-change', {
+          'sailing_id': selected.value,
+          'source': selected.dataset.source
+        });
       }
     }
   },
@@ -39120,7 +39149,8 @@ var render = function() {
           attrs: {
             accessToken: _vm.accessToken,
             mapStyle: _vm.mapStyle,
-            zoom: _vm.zoom
+            zoom: _vm.zoom,
+            center: _vm.center
           },
           on: { load: _vm.mapLoaded }
         },
@@ -39141,10 +39171,7 @@ var render = function() {
                   "div",
                   {
                     staticClass:
-                      "my-div-icon mapboxgl-marker mapboxgl-marker-anchor-center",
-                    staticStyle: {
-                      transform: "translate(-50%, -50%) translate(515px, 440px)"
-                    },
+                      "my-div-icon mapboxgl-marker mapboxgl-marker-anchor-center map-marker",
                     attrs: { slot: "marker" },
                     slot: "marker"
                   },
@@ -39153,8 +39180,15 @@ var render = function() {
                       _vm._v(_vm._s(i))
                     ])
                   ]
-                )
-              ]
+                ),
+                _vm._v(" "),
+                _c("MglPopup", [
+                  _c("div", [
+                    _vm._v(_vm._s(marker.name) + " - " + _vm._s(marker.country))
+                  ])
+                ])
+              ],
+              1
             )
           }),
           _vm._v(" "),
@@ -39198,24 +39232,91 @@ var render = function() {
     "div",
     { staticClass: "sailings-container", attrs: { id: "sailings-list" } },
     [
+      _vm._v("\n    internal:\n    "),
       _c(
         "select",
         {
           staticClass: "form-control",
-          attrs: { name: "LeaveType" },
+          attrs: { name: "internal_sailings" },
           on: {
             change: function($event) {
               return _vm.onChange($event)
             }
           }
         },
-        _vm._l(_vm.sailings, function(sailing, index) {
-          return _c("option", { key: index, domProps: { value: sailing.id } }, [
-            _vm._v("\n            " + _vm._s(sailing.name) + "\n        ")
-          ])
+        [
+          _c("option", { attrs: { value: "", selected: "selected" } }, [
+            _vm._v("Please Select")
+          ]),
+          _vm._v(" "),
+          _vm._l(_vm.internal_sailings, function(sailing, index) {
+            return _c(
+              "option",
+              {
+                key: index,
+                attrs: {
+                  "data-name": sailing.name,
+                  "data-departure": sailing.departure,
+                  "data-arrival": sailing.arrival
+                },
+                domProps: { value: sailing.id }
+              },
+              [
+                _vm._v(
+                  "\n            " +
+                    _vm._s(sailing.id) +
+                    " - " +
+                    _vm._s(sailing.name) +
+                    "\n        "
+                )
+              ]
+            )
+          })
+        ],
+        2
+      ),
+      _vm._v("\n\n    external:\n    "),
+      _c(
+        "select",
+        {
+          staticClass: "form-control",
+          attrs: { name: "external_sailings" },
+          on: {
+            change: function($event) {
+              return _vm.onChange($event)
+            }
+          }
+        },
+        _vm._l(_vm.external_sailings, function(sailing, index) {
+          return _c(
+            "option",
+            {
+              key: index,
+              attrs: {
+                "data-name": sailing.name,
+                "data-source": sailing.source,
+                "data-departure": sailing.departure,
+                "data-arrival": sailing.arrival
+              },
+              domProps: { value: sailing.id }
+            },
+            [
+              _vm._v(
+                "\n            " +
+                  _vm._s(sailing.id) +
+                  " - " +
+                  _vm._s(sailing.source) +
+                  " -  " +
+                  _vm._s(sailing.name) +
+                  "\n        "
+              )
+            ]
+          )
         }),
         0
-      )
+      ),
+      _vm._v(" "),
+      _c("h4", [_vm._v(_vm._s(_vm.selected_sailing) + " ")])
     ]
   )
 }
