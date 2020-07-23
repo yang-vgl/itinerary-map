@@ -10,6 +10,7 @@
 
         external:
         <select name="external_sailings" @change="onChange($event)" class="form-control">
+            <option value="" selected="selected" >Please Select</option>
             <option v-for="(sailing, index) in external_sailings"
                     :key="index" :value="sailing.id"  :data-name="sailing.name" :data-source="sailing.source" :data-departure="sailing.departure" :data-arrival="sailing.arrival">
                 {{sailing.id}} - {{sailing.source}} -  {{sailing.name}}
@@ -17,6 +18,7 @@
         </select>
 
         <h4>{{selected_sailing}} </h4>
+
     </div>
 
 </template>
@@ -53,7 +55,7 @@
             onChange:function(event){
                 if(event.target.options.selectedIndex > -1) {
                     var selected =  event.target.options[event.target.options.selectedIndex];
-                    this.selected_sailing = selected.dataset.name+ selected.dataset.departure+ selected.dataset.arrival;
+                    this.selected_sailing = selected.dataset.name+ ' Departure: '+selected.dataset.departure+ ' Arrival: '+selected.dataset.arrival;
                     this.$eventHub.$emit('sailing-change', {'sailing_id':selected.value, 'source' :  selected.dataset.source});
                 }
             },

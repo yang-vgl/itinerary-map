@@ -2139,6 +2139,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {},
@@ -2164,7 +2166,7 @@ __webpack_require__.r(__webpack_exports__);
     onChange: function onChange(event) {
       if (event.target.options.selectedIndex > -1) {
         var selected = event.target.options[event.target.options.selectedIndex];
-        this.selected_sailing = selected.dataset.name + selected.dataset.departure + selected.dataset.arrival;
+        this.selected_sailing = selected.dataset.name + ' Departure: ' + selected.dataset.departure + ' Arrival: ' + selected.dataset.arrival;
         this.$eventHub.$emit('sailing-change', {
           'sailing_id': selected.value,
           'source': selected.dataset.source
@@ -39287,33 +39289,39 @@ var render = function() {
             }
           }
         },
-        _vm._l(_vm.external_sailings, function(sailing, index) {
-          return _c(
-            "option",
-            {
-              key: index,
-              attrs: {
-                "data-name": sailing.name,
-                "data-source": sailing.source,
-                "data-departure": sailing.departure,
-                "data-arrival": sailing.arrival
+        [
+          _c("option", { attrs: { value: "", selected: "selected" } }, [
+            _vm._v("Please Select")
+          ]),
+          _vm._v(" "),
+          _vm._l(_vm.external_sailings, function(sailing, index) {
+            return _c(
+              "option",
+              {
+                key: index,
+                attrs: {
+                  "data-name": sailing.name,
+                  "data-source": sailing.source,
+                  "data-departure": sailing.departure,
+                  "data-arrival": sailing.arrival
+                },
+                domProps: { value: sailing.id }
               },
-              domProps: { value: sailing.id }
-            },
-            [
-              _vm._v(
-                "\n            " +
-                  _vm._s(sailing.id) +
-                  " - " +
-                  _vm._s(sailing.source) +
-                  " -  " +
-                  _vm._s(sailing.name) +
-                  "\n        "
-              )
-            ]
-          )
-        }),
-        0
+              [
+                _vm._v(
+                  "\n            " +
+                    _vm._s(sailing.id) +
+                    " - " +
+                    _vm._s(sailing.source) +
+                    " -  " +
+                    _vm._s(sailing.name) +
+                    "\n        "
+                )
+              ]
+            )
+          })
+        ],
+        2
       ),
       _vm._v(" "),
       _c("h4", [_vm._v(_vm._s(_vm.selected_sailing) + " ")])
