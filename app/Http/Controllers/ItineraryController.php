@@ -20,8 +20,8 @@ class ItineraryController extends Controller
         foreach($locations as $key => $location) {
             $itins[$key]['location'] = $location;
             $client = new Client();
-            $response = $client->request('GET', 'http://www.mapquestapi.com/geocoding/v1/address',
-                ['query' => ['key' => 'AcWlt8AQMosxVcGc7LmkFt0xA8VNhQbJ', "location" => str_replace('-', ' ',$location)]]);
+            $response = $client->request('GET', config('api.mapquest.uri'),
+                ['query' => ['key' => config('api.mapquest.key'), "location" => str_replace('-', ' ',$location)]]);
 
             $res = $response->getBody()->getContents();
             $res = json_decode($res, true);

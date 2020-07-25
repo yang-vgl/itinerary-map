@@ -5,9 +5,8 @@
         <button v-on:click="getCoordinate">Confirm</button>
 
         <nav>
-            <router-link to="/">Go to Home</router-link>
             <router-link to="/itinerary">Show Itinerary</router-link>
-            <router-link to="/action">Show Action</router-link>
+            <router-link to="/map">Show Map</router-link>
         </nav>
 
     </div>
@@ -24,10 +23,6 @@
         },
         data() {
             return {
-                internal_sailings : [],
-                external_sailings : [],
-                selected_sailing : '',
-                form:{email:""},
                 locations:""
             };
         },
@@ -35,31 +30,10 @@
         methods : {
             getLocations(event){
                 this.locations=event.target.value;
-                console.log('here1111');
-                console.log(this.locations);
             },
 
             getCoordinate(event){
                 this.$eventHub.$emit('locations-submit', this.locations);
-            },
-
-            read()
-            {
-                /*
-                window.axios.get('/api/sailings/get').then((response) => {
-                    this.internal_sailings = response.data.internal_sailings;
-                    this.external_sailings = response.data.external_sailings;
-                })
-
-                 */
-            },
-
-            onChange:function(event){
-                if(event.target.options.selectedIndex > -1) {
-                    var selected =  event.target.options[event.target.options.selectedIndex];
-                    this.selected_sailing = selected.dataset.name+ ' Departure: '+selected.dataset.departure+ ' Arrival: '+selected.dataset.arrival;
-                    this.$eventHub.$emit('sailing-change', {'sailing_id':selected.value, 'source' :  selected.dataset.source});
-                }
             },
         },
 

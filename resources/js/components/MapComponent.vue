@@ -79,8 +79,6 @@
 
             reload(itins)
             {
-                console.log(itins);
-
                 self = this;
                 var coordinate = [];
                 self.markers = [];
@@ -111,7 +109,6 @@
 
             mapLoaded ({ map }) {
                 this.map = map;
-                console.log(map.get);
             },
         },
 
@@ -119,7 +116,6 @@
             this.mapbox = Mapbox;
             self = this;
             this.$eventHub.$on('get-coordinate', function(e){
-                console.log('map');
                 self.reload(e);
             });
         }

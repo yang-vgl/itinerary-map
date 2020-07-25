@@ -1,14 +1,9 @@
-
-import Home from './components/ItinsComponent.vue';
-import Register from './components/MapComponent.vue';
 import Map from './components/MapComponent.vue';
-
-import Action from './components/MapComponent.vue';
+import Itinerary from './components/ItinsComponent.vue';
 
 const routes = [
-    { path: '/', component: Map },
-    { path: '/map', component: Map },
-    { path: '/action', component: Action },
+    { path: '/itinerary', component: Itinerary },
+    { path: '/map', component: Map }
 ];
 
 export default routes;

@@ -38,14 +38,12 @@
         methods : {
             read(locations)
             {
-                console.log(locations);
                 return  window.axios.get('/api/locations/get', {
                     params: {
                         locations: locations,
                     }
                 }).then((response) => {
                     this.itins = response.data;
-                     console.log( this.itins);
                      this.$eventHub.$emit('get-coordinate', this.itins);
                 })
             },
@@ -56,7 +54,6 @@
             var self = this;
 
             this.$eventHub.$on('locations-submit', function(e){
-                console.log('here');
                 self.read(e);
             });
         }

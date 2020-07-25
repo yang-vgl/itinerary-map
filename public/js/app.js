@@ -1944,14 +1944,12 @@ __webpack_require__.r(__webpack_exports__);
     read: function read(locations) {
       var _this = this;
 
-      console.log(locations);
       return window.axios.get('/api/locations/get', {
         params: {
           locations: locations
         }
       }).then(function (response) {
         _this.itins = response.data;
-        console.log(_this.itins);
 
         _this.$eventHub.$emit('get-coordinate', _this.itins);
       });
@@ -1960,7 +1958,6 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {
     var self = this;
     this.$eventHub.$on('locations-submit', function (e) {
-      console.log('here');
       self.read(e);
     });
   }
@@ -2052,7 +2049,6 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     reload: function reload(itins) {
-      console.log(itins);
       self = this;
       var coordinate = [];
       self.markers = [];
@@ -2086,14 +2082,12 @@ __webpack_require__.r(__webpack_exports__);
     mapLoaded: function mapLoaded(_ref) {
       var map = _ref.map;
       this.map = map;
-      console.log(map.get);
     }
   },
   created: function created() {
     this.mapbox = mapbox_gl__WEBPACK_IMPORTED_MODULE_0___default.a;
     self = this;
     this.$eventHub.$on('get-coordinate', function (e) {
-      console.log('map');
       self.reload(e);
     });
   }
@@ -2126,47 +2120,20 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {},
   data: function data() {
     return {
-      internal_sailings: [],
-      external_sailings: [],
-      selected_sailing: '',
-      form: {
-        email: ""
-      },
       locations: ""
     };
   },
   methods: {
     getLocations: function getLocations(event) {
       this.locations = event.target.value;
-      console.log('here1111');
-      console.log(this.locations);
     },
     getCoordinate: function getCoordinate(event) {
       this.$eventHub.$emit('locations-submit', this.locations);
-    },
-    read: function read() {
-      /*
-      window.axios.get('/api/sailings/get').then((response) => {
-          this.internal_sailings = response.data.internal_sailings;
-          this.external_sailings = response.data.external_sailings;
-      })
-        */
-    },
-    onChange: function onChange(event) {
-      if (event.target.options.selectedIndex > -1) {
-        var selected = event.target.options[event.target.options.selectedIndex];
-        this.selected_sailing = selected.dataset.name + ' Departure: ' + selected.dataset.departure + ' Arrival: ' + selected.dataset.arrival;
-        this.$eventHub.$emit('sailing-change', {
-          'sailing_id': selected.value,
-          'source': selected.dataset.source
-        });
-      }
     }
   },
   created: function created() {
@@ -39262,15 +39229,11 @@ var render = function() {
       _c(
         "nav",
         [
-          _c("router-link", { attrs: { to: "/" } }, [_vm._v("Go to Home")]),
-          _vm._v(" "),
           _c("router-link", { attrs: { to: "/itinerary" } }, [
             _vm._v("Show Itinerary")
           ]),
           _vm._v(" "),
-          _c("router-link", { attrs: { to: "/action" } }, [
-            _vm._v("Show Action")
-          ])
+          _c("router-link", { attrs: { to: "/map" } }, [_vm._v("Show Map")])
         ],
         1
       )
@@ -56840,21 +56803,16 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_ItinsComponent_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/ItinsComponent.vue */ "./resources/js/components/ItinsComponent.vue");
-/* harmony import */ var _components_MapComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/MapComponent.vue */ "./resources/js/components/MapComponent.vue");
-
-
+/* harmony import */ var _components_MapComponent_vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/MapComponent.vue */ "./resources/js/components/MapComponent.vue");
+/* harmony import */ var _components_ItinsComponent_vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/ItinsComponent.vue */ "./resources/js/components/ItinsComponent.vue");
 
 
 var routes = [{
-  path: '/',
-  component: _components_MapComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+  path: '/itinerary',
+  component: _components_ItinsComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
 }, {
   path: '/map',
-  component: _components_MapComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
-}, {
-  path: '/action',
-  component: _components_MapComponent_vue__WEBPACK_IMPORTED_MODULE_1__["default"]
+  component: _components_MapComponent_vue__WEBPACK_IMPORTED_MODULE_0__["default"]
 }];
 /* harmony default export */ __webpack_exports__["default"] = (routes);
 
