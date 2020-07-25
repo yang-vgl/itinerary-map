@@ -11,7 +11,6 @@
                 <MglPopup>
                         <div>{{marker.name}} - {{marker.country}}</div>
                 </MglPopup>
-
             </MglMarker>
 
             <MglGeojsonLayer
@@ -42,8 +41,8 @@
         data() {
             return {
                 accessToken:
-                    "pk.eyJ1IjoiY3J1aXNld2F0Y2giLCJhIjoiY2psbTU1cXA5MGJzdzNqcW1uMW8xdnhxOSJ9.XQXd9br5alZu0SsqgrOAGA",
-                mapStyle: "mapbox://styles/cruisewatch/cjmgdmwxd4e662rpv1z8zcxvr",
+                    "pk.eyJ1IjoibWlrZWhhbWlsdG9uMDAiLCJhIjoiNDVjS2puUSJ9.aLvWM5BnllUGJ0e6nwMSEg",
+                mapStyle: "mapbox://styles/mapbox/streets-v11",
                 geoJsonLayer:  {
                     "id": "route",
                     "type": "line",
