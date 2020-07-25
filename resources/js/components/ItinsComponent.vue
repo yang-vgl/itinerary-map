@@ -9,10 +9,10 @@
             </thead>
             <tbody>
             <tr v-for="(itin, index) in itins" :key="index">
-                <td>{{itin.day}}</td>
-                <td>{{itin.port_name}}</td>
-                <td></td>
-                <td></td>
+                <td>{{itin.location}}</td>
+                <td>{{itin.country}}</td>
+                <td>{{itin.lat}}</td>
+                <td>{{itin.lng}}</td>
             </tr>
             </tbody>
         </table>
@@ -31,16 +31,18 @@
         },
         data() {
             return {
-                columns : ['Day', 'Port', 'Arrival', 'Departure'],
+                columns : ['Location', 'Country', 'Latitude', 'Longitude'],
                 itins : [],
             };
         },
 
         methods : {
-            read(data)
+            read(locations)
             {
-                return  window.axios.get('/api/itinerary/get', {
-                    params: data
+                return  window.axios.get('/api/locations/get', {
+                    params: {
+                        locations: locations,
+                    }
                 }).then((response) => {
                     this.itins = response.data;
                 })
@@ -48,6 +50,8 @@
         },
 
         created() {
+
+            this.read();
 
             var self = this;
 

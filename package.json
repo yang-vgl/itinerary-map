@@ -26,6 +26,7 @@
     "dependencies": {
         "@babel/core": "^7.10.5",
         "mapbox-gl": "^1.11.1",
-        "vue-mapbox": "^0.4.1"
+        "vue-mapbox": "^0.4.1",
+        "vue-router": "^3.3.4"
     }
 }

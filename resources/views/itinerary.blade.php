@@ -11,7 +11,8 @@
     </div>
 
     <div>
-        <map-component></map-component>
+        <router-view />
+
     </div>
 
 @endsection
