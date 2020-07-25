@@ -10,7 +10,6 @@
             <tbody>
             <tr v-for="(itin, index) in itins" :key="index">
                 <td>{{itin.location}}</td>
-                <td>{{itin.country}}</td>
                 <td>{{itin.lat}}</td>
                 <td>{{itin.lng}}</td>
             </tr>
@@ -31,7 +30,7 @@
         },
         data() {
             return {
-                columns : ['Location', 'Country', 'Latitude', 'Longitude'],
+                columns : ['Location', 'Latitude', 'Longitude'],
                 itins : [],
             };
         },
@@ -39,23 +38,25 @@
         methods : {
             read(locations)
             {
+                console.log(locations);
                 return  window.axios.get('/api/locations/get', {
                     params: {
                         locations: locations,
                     }
                 }).then((response) => {
                     this.itins = response.data;
+                     console.log( this.itins);
+                     this.$eventHub.$emit('get-coordinate', this.itins);
                 })
             },
         },
 
         created() {
 
-            this.read();
-
             var self = this;
 
-            this.$eventHub.$on('sailing-change', function(e){
+            this.$eventHub.$on('locations-submit', function(e){
+                console.log('here');
                 self.read(e);
             });
         }

@@ -3,13 +3,13 @@
         Locations:
         <input type="text" @input="getLocations($event)" class="form-control" placeholder="Locations seperated with ," v-model="locations">
         <button v-on:click="getCoordinate">Confirm</button>
-        <p>email: {{locations}}</p>
 
         <nav>
             <router-link to="/">Go to Home</router-link>
             <router-link to="/itinerary">Show Itinerary</router-link>
             <router-link to="/action">Show Action</router-link>
         </nav>
+
     </div>
 
 </template>
@@ -35,11 +35,12 @@
         methods : {
             getLocations(event){
                 this.locations=event.target.value;
+                console.log('here1111');
                 console.log(this.locations);
             },
 
             getCoordinate(event){
-                console.log( this.locations);
+                this.$eventHub.$emit('locations-submit', this.locations);
             },
 
             read()

@@ -1931,13 +1931,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {},
   data: function data() {
     return {
-      columns: ['Location', 'Country', 'Latitude', 'Longitude'],
+      columns: ['Location', 'Latitude', 'Longitude'],
       itins: []
     };
   },
@@ -1945,19 +1944,23 @@ __webpack_require__.r(__webpack_exports__);
     read: function read(locations) {
       var _this = this;
 
+      console.log(locations);
       return window.axios.get('/api/locations/get', {
         params: {
           locations: locations
         }
       }).then(function (response) {
         _this.itins = response.data;
+        console.log(_this.itins);
+
+        _this.$eventHub.$emit('get-coordinate', _this.itins);
       });
     }
   },
   created: function created() {
-    this.read();
     var self = this;
-    this.$eventHub.$on('sailing-change', function (e) {
+    this.$eventHub.$on('locations-submit', function (e) {
+      console.log('here');
       self.read(e);
     });
   }
@@ -2048,45 +2051,37 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    reload: function reload(data) {
-      var _this = this;
-
+    reload: function reload(itins) {
+      console.log(itins);
       self = this;
-      return window.axios.get('/api/itinerary/get', {
-        params: {
-          sailing_id: data.sailing_id,
-          source: data.source
+      var coordinate = [];
+      self.markers = [];
+      self.maxBounds = [];
+      Object.keys(itins).forEach(function (key) {
+        if (itins[key].lat && itins[key].lng) {
+          var cord = [itins[key].lng, itins[key].lat];
+          coordinate.push(cord);
+          self.markers.push({
+            coordinates: cord,
+            name: itins[key].location
+          });
+          self.maxBounds.push(cord);
         }
-      }).then(function (response) {
-        var coordinate = [];
-        self.markers = [];
-        self.maxBounds = [];
-        Object.keys(response.data).forEach(function (key) {
-          if (response.data[key].gps) {
-            coordinate.push(response.data[key].gps);
-            self.markers.push({
-              coordinates: response.data[key].gps,
-              name: response.data[key].port_name,
-              country: response.data[key].country
-            });
-            self.maxBounds.push(response.data[key].gps);
-          }
-        });
-        _this.center = coordinate[0];
-        _this.zoom = 2; //this.map.fitBounds( this.map.getMaxBounds(), {padding: 65} );
-
-        _this.geoJsonLayer.source.data.geometry.coordinates = coordinate; //todo why isn't the template automatically re-rendered when geoJsonLayer is changed ?
-
-        if (_this.map.getLayer(_this.geoJsonLayer.id)) {
-          _this.map.removeLayer(_this.geoJsonLayer.id);
-        }
-
-        if (_this.map.getSource(_this.geoJsonLayer.id)) {
-          _this.map.removeSource(_this.geoJsonLayer.id);
-        }
-
-        _this.map.addLayer(_this.geoJsonLayer);
       });
+      this.center = coordinate[0];
+      this.zoom = 2; //this.map.fitBounds( this.map.getMaxBounds(), {padding: 65} );
+
+      this.geoJsonLayer.source.data.geometry.coordinates = coordinate; //todo why isn't the template automatically re-rendered when geoJsonLayer is changed ?
+
+      if (this.map.getLayer(this.geoJsonLayer.id)) {
+        this.map.removeLayer(this.geoJsonLayer.id);
+      }
+
+      if (this.map.getSource(this.geoJsonLayer.id)) {
+        this.map.removeSource(this.geoJsonLayer.id);
+      }
+
+      this.map.addLayer(this.geoJsonLayer);
     },
     mapLoaded: function mapLoaded(_ref) {
       var map = _ref.map;
@@ -2097,7 +2092,8 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {
     this.mapbox = mapbox_gl__WEBPACK_IMPORTED_MODULE_0___default.a;
     self = this;
-    this.$eventHub.$on('sailing-change', function (e) {
+    this.$eventHub.$on('get-coordinate', function (e) {
+      console.log('map');
       self.reload(e);
     });
   }
@@ -2148,10 +2144,11 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     getLocations: function getLocations(event) {
       this.locations = event.target.value;
+      console.log('here1111');
       console.log(this.locations);
     },
     getCoordinate: function getCoordinate(event) {
-      console.log(this.locations);
+      this.$eventHub.$emit('locations-submit', this.locations);
     },
     read: function read() {
       /*
@@ -39105,8 +39102,6 @@ var render = function() {
           return _c("tr", { key: index }, [
             _c("td", [_vm._v(_vm._s(itin.location))]),
             _vm._v(" "),
-            _c("td", [_vm._v(_vm._s(itin.country))]),
-            _vm._v(" "),
             _c("td", [_vm._v(_vm._s(itin.lat))]),
             _vm._v(" "),
             _c("td", [_vm._v(_vm._s(itin.lng))])
@@ -39184,7 +39179,9 @@ var render = function() {
                 _vm._v(" "),
                 _c("MglPopup", [
                   _c("div", [
-                    _vm._v(_vm._s(marker.name) + " - " + _vm._s(marker.country))
+                    _vm._v(
+                      _vm._s(marker.name) + " - " + _vm._s(marker.coordinates)
+                    )
                   ])
                 ])
               ],
@@ -39261,8 +39258,6 @@ var render = function() {
       }),
       _vm._v(" "),
       _c("button", { on: { click: _vm.getCoordinate } }, [_vm._v("Confirm")]),
-      _vm._v(" "),
-      _c("p", [_vm._v("email: " + _vm._s(_vm.locations))]),
       _vm._v(" "),
       _c(
         "nav",

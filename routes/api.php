@@ -18,6 +18,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/itinerary/get', '\App\Http\Controllers\ItineraryController@get');
+Route::get('/locations/get', '\App\Http\Controllers\ItineraryController@getCoordinate');
 
 Route::get('/sailings/get', '\App\Http\Controllers\SailingsController@get');

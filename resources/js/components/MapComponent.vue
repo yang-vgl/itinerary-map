@@ -9,7 +9,7 @@
                     <span class="marker-wrap">{{i}}</span>
                 </div>
                 <MglPopup>
-                        <div>{{marker.name}} - {{marker.country}}</div>
+                    <div>{{marker.name}} - {{marker.coordinates}}</div>
                 </MglPopup>
             </MglMarker>
 
@@ -77,40 +77,36 @@
 
         methods : {
 
-            reload(data)
+            reload(itins)
             {
+                console.log(itins);
+
                 self = this;
-                return  window.axios.get('/api/itinerary/get', {
-                    params: {
-                        sailing_id: data.sailing_id,
-                        source: data.source
+                var coordinate = [];
+                self.markers = [];
+                self.maxBounds = [];
+                Object.keys(itins).forEach(function(key) {
+                    if(itins[key].lat && itins[key].lng) {
+                        var cord = [itins[key].lng, itins[key].lat];
+                        coordinate.push(cord);
+                        self.markers.push({coordinates :cord, name : itins[key].location});
+                        self.maxBounds.push(cord);
                     }
-                }).then((response) => {
-                    var coordinate = [];
-                    self.markers = [];
-                    self.maxBounds = [];
-                    Object.keys(response.data).forEach(function(key) {
-                        if(response.data[key].gps) {
-                            coordinate.push(response.data[key].gps);
-                            self.markers.push({coordinates :response.data[key].gps, name : response.data[key].port_name, country : response.data[key].country});
-                            self.maxBounds.push(response.data[key].gps);
-                        }
-                    });
+                });
 
-                    this.center = coordinate[0];
-                    this.zoom = 2;
-                    //this.map.fitBounds( this.map.getMaxBounds(), {padding: 65} );
-                    this.geoJsonLayer.source.data.geometry.coordinates = coordinate;
+                this.center = coordinate[0];
+                this.zoom = 2;
+                //this.map.fitBounds( this.map.getMaxBounds(), {padding: 65} );
+                this.geoJsonLayer.source.data.geometry.coordinates = coordinate;
 
-                    //todo why isn't the template automatically re-rendered when geoJsonLayer is changed ?
-                    if(this.map.getLayer(this.geoJsonLayer.id)) {
-                        this.map.removeLayer(this.geoJsonLayer.id);
-                    }
-                    if(this.map.getSource(this.geoJsonLayer.id)) {
-                        this.map.removeSource(this.geoJsonLayer.id);
-                    }
-                    this.map.addLayer(this.geoJsonLayer);
-                })
+                //todo why isn't the template automatically re-rendered when geoJsonLayer is changed ?
+                if(this.map.getLayer(this.geoJsonLayer.id)) {
+                    this.map.removeLayer(this.geoJsonLayer.id);
+                }
+                if(this.map.getSource(this.geoJsonLayer.id)) {
+                    this.map.removeSource(this.geoJsonLayer.id);
+                }
+                this.map.addLayer(this.geoJsonLayer);
             },
 
             mapLoaded ({ map }) {
@@ -122,7 +118,8 @@
         created() {
             this.mapbox = Mapbox;
             self = this;
-            this.$eventHub.$on('sailing-change', function(e){
+            this.$eventHub.$on('get-coordinate', function(e){
+                console.log('map');
                 self.reload(e);
             });
         }
