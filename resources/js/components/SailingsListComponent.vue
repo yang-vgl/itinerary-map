@@ -35,10 +35,6 @@
             getCoordinate(event){
                 this.$eventHub.$emit('locations-submit', this.locations);
             },
-        },
-
-        created() {
-            this.read();
         }
     };
 </script>

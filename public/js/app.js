@@ -2002,7 +2002,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2135,9 +2134,6 @@ __webpack_require__.r(__webpack_exports__);
     getCoordinate: function getCoordinate(event) {
       this.$eventHub.$emit('locations-submit', this.locations);
     }
-  },
-  created: function created() {
-    this.read();
   }
 });
 

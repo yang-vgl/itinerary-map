@@ -18,7 +18,6 @@
                 :layerId="geoJsonLayer.id"
                 :layer="geoJsonLayer"
             />
-
         </MglMap>
 
     </div>
