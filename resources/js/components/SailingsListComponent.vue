@@ -3,11 +3,9 @@
         Locations:
         <input type="text" @input="getLocations($event)" class="form-control"
                placeholder="Locations seperated with ',', e.g. Berlin,Dresden,Leipzig,München,Frankfurt"
-
                v-model="locations">
         <button v-on:click="getCoordinate">Confirm</button>
     </div>
-
 </template>
 
 <script>
