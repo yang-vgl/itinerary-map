@@ -2116,15 +2116,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {},
   data: function data() {
     return {
-      locations: ""
+      locations: "Berlin,Dresden,Leipzig,München,Frankfurt"
     };
   },
   methods: {
@@ -39203,7 +39200,11 @@ var render = function() {
           }
         ],
         staticClass: "form-control",
-        attrs: { type: "text", placeholder: "Locations seperated with ," },
+        attrs: {
+          type: "text",
+          placeholder:
+            "Locations seperated with ',', e.g. Berlin,Dresden,Leipzig,München,Frankfurt"
+        },
         domProps: { value: _vm.locations },
         on: {
           input: [
@@ -39220,19 +39221,7 @@ var render = function() {
         }
       }),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.getCoordinate } }, [_vm._v("Confirm")]),
-      _vm._v(" "),
-      _c(
-        "nav",
-        [
-          _c("router-link", { attrs: { to: "/itinerary" } }, [
-            _vm._v("Show Itinerary")
-          ]),
-          _vm._v(" "),
-          _c("router-link", { attrs: { to: "/map" } }, [_vm._v("Show Map")])
-        ],
-        1
-      )
+      _c("button", { on: { click: _vm.getCoordinate } }, [_vm._v("Confirm")])
     ]
   )
 }
